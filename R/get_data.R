@@ -10,6 +10,8 @@
 #' @param site_meta a metScanR list element.
 #' @param start_date A YYYY-MM-DD hh:mm:ss formated start time
 #' @param end_date A YYYY-MM-DD hh:mm:ss formated end time
+#' @param temp_agg The temporal agregation of the data (or period of reporting).
+#'  Can be one of "monthly","daily", "hourly", or "subhourly".
 #' @param token Optional, but required for Mesonet stations. See: \url{https://developers.synopticdata.com/mesonet/} for more information.
 #'
 #' @return Data frame data for the input site found with metScanR, if available.
@@ -45,18 +47,20 @@
 
 
 getData<-function(site_meta, start_date, end_date, temp_agg, token=NA){
-  #browser()
+options(stringsAsFactors = FALSE)
+  resTracking=NULL
   #set out to no data right off the bat:
   out<-"NO DATA"
   #check to make sure temp_agg is appropriate
   
   if(!(tolower(temp_agg) %in% c("monthly","daily","hourly","subhourly"))){
-    stop("temp_agg must equal 'monthly', 'daily', 'hourly', or 'subhourly' ")
+    stop("temp_agg must equal 'monthly', 'daily', 'hourly', or 'subhourly'")
   }
   temp_agg=tolower(temp_agg)
   
   platform<-site_meta$platform
   identifiers<-site_meta$identifiers
+  
   #make dataframe with site's platform and identifiers:
   stationMeta<-data.frame(platform,identifiers)
   
@@ -67,19 +71,12 @@ getData<-function(site_meta, start_date, end_date, temp_agg, token=NA){
   else{
     resTrackFilter<-resTracking[which(resTracking$platform==site_meta$platform & resTracking$value==temp_agg),]
   }
-  #browser()
-  #open station resolution mapping:
-  #save(resTracking,file = "C:/Users/jroberti/Git/external-sites/metDownloadR/data/stationResolutionMap.rda")
-  #load("../metDownloadR/data/stationResolutionMap.rda")
-  #load resTracking from /data folder of R package
-  #metDownloadR:::stationResolutionMap
-  #get station's platform and IDs
-  
+
   #merge resTrackFilter with station identifiers:
 
   if(nrow(resTrackFilter)>0){
     mergedMeta<-merge(stationMeta,resTrackFilter,by=intersect(names(stationMeta),names(resTrackFilter)))
-    #browser()
+
     #update on 2019-02-04.  Just want to use mesonet repository because they'll have data we nned. ACIS only has few variables
     mergedMeta<-mergedMeta[grep("Mesonet",mergedMeta$Rpackage),]
     #fget unique R packages in case it's repeating:
@@ -102,7 +99,7 @@ getData<-function(site_meta, start_date, end_date, temp_agg, token=NA){
       if(useTheseMeta$Rpackage=="ACIS"){
         #browser()
         sid<-useTheseMeta$id
-        out<-getSingleACIS(sid = sid, start_date = start_date, end_date = end_date)
+        out<-getACISData(sid = sid, start_date = start_date, end_date = end_date)
         #browser()
       }
       else if(useTheseMeta$Rpackage=="RNRCS"){
@@ -120,25 +117,19 @@ getData<-function(site_meta, start_date, end_date, temp_agg, token=NA){
         #browser()
         #useTheseMeta<-mergedMeta[4,]
         sid<-useTheseMeta$id
-        out<-metDownloadR::getUSCRNData(stationID = sid, timeScale = temp_agg, timeBgn = start_date, timeEnd = end_date)
+        out<-getUSCRNData(sid = sid, temp_agg = temp_agg, start_date = start_date, end_date = end_date)
       }
       else if(useTheseMeta$Rpackage=="Mesonet"){
-        out="No data returned- please input a Mesonet API token.\nSee: https://developers.synopticdata.com/mesonet/ "
+        out="No data returned- please input a Mesonet API token. See: https://developers.synopticdata.com/mesonet/ "
         if(!is.na(token)){
-          #add test dates for grabbing preliminary data:
-          pingTimeBgn<-mesoTime(start_date)
-          pingTimeEnd<-mesoTime(as.character(as.POSIXct(start_date)+36*60*60))
           #assign mesonet ID:
           mesoId=useTheseMeta$id
           #collapse the time stamps into strings without separators; need this for mesonet API
           timeBgn<-mesoTime(start_date)
           timeEnd<-mesoTime(end_date)
-          #print mesonetID to end-user:
-          print(mesoId)
-          # out<-metDownloadR::getMesonetData(token="16088448e1b149509e45e401196106f0",mesoId=mesoId,
-          #                timeBgn=timeBgn,timeEnd=timeEnd)
-          out<-metDownloadR::getMesonetData(token=token,mesoId=mesoId,pingTimeBgn=pingTimeBgn,
-                                            pingTimeEnd=pingTimeEnd,timeBgn=timeBgn,timeEnd=timeEnd)
+          # print mesonetID to end-user:
+          # print(mesoId)
+          out<-getMesonetData(token=token,mesoId=mesoId,timeBgn=timeBgn,timeEnd=timeEnd)
          }
       }
       ### input helper function to clean missing data rows out.

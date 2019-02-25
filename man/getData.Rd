@@ -13,6 +13,9 @@ getData(site_meta, start_date, end_date, temp_agg, token = NA)
 
 \item{end_date}{A YYYY-MM-DD hh:mm:ss formated end time}
 
+\item{temp_agg}{The temporal agregation of the data (or period of reporting).
+Can be one of "monthly","daily", "hourly", or "subhourly".}
+
 \item{token}{Optional, but required for Mesonet stations. See: \url{https://developers.synopticdata.com/mesonet/} for more information.}
 }
 \value{

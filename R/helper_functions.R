@@ -53,16 +53,16 @@
 }
 
 # Get data (for non-monthly data) ####
-.get.data=function(baseLink, station.name, year, timeScale, header){
+.get.data=function(baseLink, station.name, year, temp_agg, header){
   raw.data=NA
   #browser()
   year<-2003
   if(any(grepl(pattern = paste0(">", year), x = readLines(baseLink)))){
     tails="01/"
-    if(timeScale=="hourly"){tails="02/"}
-    base=paste0("ftp://ftp.ncdc.noaa.gov/pub/data/uscrn/products/", timeScale, tails, year, "/")
+    if(temp_agg=="hourly"){tails="02/"}
+    base=paste0("ftp://ftp.ncdc.noaa.gov/pub/data/uscrn/products/", temp_agg, tails, year, "/")
     file.link=.find.file(base, station.name)
-    raw.data=read.delim(file =file.link, sep="", header = F, colClasses = "character")
+    raw.data=utils::read.delim(file =file.link, sep="", header = F, colClasses = "character")
     if(ncol(raw.data)==length(header)){
       colnames(raw.data)=header
     }
@@ -74,7 +74,7 @@
 .get.monthly.data=function(station.name, header){
   base="ftp://ftp.ncdc.noaa.gov/pub/data/uscrn/products/monthly01/"
   file.link=.find.file(base, station.name)
-  raw.data=read.delim(file =file.link, sep="", header = F, colClasses = "character")
+  raw.data=utils::read.delim(file =file.link, sep="", header = F, colClasses = "character")
   if(ncol(raw.data)==length(header)){
     colnames(raw.data)=header
   }

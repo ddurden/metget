@@ -43,22 +43,22 @@
 #     logic for pulling 1-day's worth of data to determine reported variables
 ##############################################################################################
 
-getMesonetData<-function(token,mesoId,pingTimeBgn,pingTimeEnd,timeBgn,timeEnd){
+getMesonetData<-function(token,mesoId,timeBgn,timeEnd){
   library(httr)
   library(jsonlite)
   #grab data via "ping" dates to check what types of data are available:
-  callTextPing<-paste0("https://api.synopticdata.com/v2/stations/timeseries?&token=",token,"&start=",pingTimeBgn,"&end=",pingTimeEnd,"&obtimezone=utc&output=json&stid=",mesoId)
-  data.call<-httr::GET(callTextPing)
-  #daily:
-  data.raw<-rawToChar(data.call$content)
-  data.list <- jsonlite::fromJSON(data.raw)
-  if(length(data.list$STATION)!=0){
-    browser()
-    if(class(data.list$STATION)=="list"){
-      data.list$STATION<-unlist(data.list$STATION,recursive = F)
-    }
-  }
-  
+  # callTextPing<-paste0("https://api.synopticdata.com/v2/stations/timeseries?&token=",token,"&start=",pingTimeBgn,"&end=",pingTimeEnd,"&obtimezone=utc&output=json&stid=",mesoId)
+  # data.call<-httr::GET(callTextPing)
+  # #daily:
+  # data.raw<-rawToChar(data.call$content)
+  # data.list <- jsonlite::fromJSON(data.raw)
+  # if(length(data.list$STATION)!=0){
+  #   browser()
+  #   if(class(data.list$STATION)=="list"){
+  #     data.list$STATION<-unlist(data.list$STATION,recursive = F)
+  #   }
+  # }
+  # 
   #replace the last two digits of timeEnd with 0s:
   timeBgn<-substr(timeBgn,1,nchar(timeBgn)-2)
   timeEnd<-substr(timeEnd,1,nchar(timeEnd)-2)

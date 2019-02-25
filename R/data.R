@@ -1,4 +1,3 @@
-NULL
 #' @name resTracking
 #' @docType data
 #' @title Mapping of Temporal Resolution of Data by Platform and ID

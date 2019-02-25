@@ -7,10 +7,10 @@
 #' timescale of measurements, and requested begin and end times in POSIX format,
 #' and a data frame will be returned to the global environment.
 #'
-#' @param stationID The WBAN ID of a valid USCRN site.
-#' @param TimeBgn A YYYY-MM-DD hh:mm:ss formated start time, in UTC.
-#' @param TimeEnd A YYYY-MM-DD hh:mm:ss formated end time, in UTC.
-#' @param timeScale The time scale of measurements to return.
+#' @param sid The WBAN ID of a valid USCRN site.
+#' @param start_date YYYY-MM-DD hh:mm:ss formated start time, in UTC.
+#' @param end_date A YYYY-MM-DD hh:mm:ss formated end time, in UTC.
+#' @param temp_agg The time scale of measurements to return.
 #' Enter 'monthly', 'daily', 'hourly', or 'subhourly'.
 #'
 #' @return Data frame of USCRN data.
@@ -20,12 +20,12 @@
 #' @examples
 #' \dontrun{
 # Example inputs:
-#' timeScale <- "subhourly"
-#' stationID <- "USW00003047"
-#' timeBgn <- as.POSIXct("2014-04-01 00:00:01", format="%Y-%m-%d %H:%M:%S", tz="UTC")
-#' timeEnd <- as.POSIXct("2015-02-01 00:00:00", format = "%Y-%m-%d %H:%M:%S", tz="UTC")
+#' temp_agg <- "subhourly"
+#' sid <- "USW00003047"
+#' start_date <- as.POSIXct("2014-04-01 00:00:01", format="%Y-%m-%d %H:%M:%S", tz="UTC")
+#' end_date <- as.POSIXct("2015-02-01 00:00:00", format = "%Y-%m-%d %H:%M:%S", tz="UTC")
 #'
-#' grabUSCRN(timeScale = timeScale, TimeBgn = TimeBgn, TimeEnd = TimeEnd, stationID = stationID)
+#' grabUSCRN(temp_agg = temp_agg, TimeBgn = TimeBgn, TimeEnd = TimeEnd, sid = sid)
 #' }
 #' @seealso Currently none
 
@@ -36,29 +36,29 @@
 ##############################################################################################
 
 
-getUSCRNData = function (timeScale, stationID, timeBgn, timeEnd){
+getUSCRNData = function (temp_agg, sid, start_date, end_date){
   ### FN START OPTIONS
-  print(stationID)
+  print(sid)
   functionStart = Sys.time()
   options(stringsAsFactors = FALSE)
   library(data.table)
   library(stringr)
 
   ### Handle timescales
-  if (!timeScale %in% c("monthly", "daily", "hourly", "subhourly")) {
-    stop("Invalid 'timeScale'! Please enter one of the following: 'monthly', 'daily', 'hourly', 'subhourly'.")
+  if (!temp_agg %in% c("monthly", "daily", "hourly", "subhourly")) {
+    stop("Invalid 'temp_agg'! Please enter one of the following: 'monthly', 'daily', 'hourly', 'subhourly'.")
   }
-  timeBgn = as.POSIXct(timeBgn,  tz="UTC")
-  timeEnd = as.POSIXct(timeEnd,  tz="UTC")
-  years=seq(substr(timeBgn, 0, 4), substr(timeEnd, 0, 4))
-  ref.seq=.make.time.seq(timeBgn, timeEnd, timeScale)
+  start_date = as.POSIXct(start_date,  tz="UTC")
+  end_date = as.POSIXct(end_date,  tz="UTC")
+  years=seq(substr(start_date, 0, 4), substr(end_date, 0, 4))
+  ref.seq=.make.time.seq(start_date, end_date, temp_agg)
 
   #### Get table header info
-  if (timeScale == "hourly") {
+  if (temp_agg == "hourly") {
     header <- readLines("ftp://ftp.ncdc.noaa.gov/pub/data/uscrn/products/hourly02/HEADERS.txt")
   }else {
     header <- readLines(paste0("ftp://ftp.ncdc.noaa.gov/pub/data/uscrn/products/",
-                               timeScale, "01/HEADERS.txt"))
+                               temp_agg, "01/HEADERS.txt"))
   }
   header=unlist(strsplit(x = header[2], split = " "), recursive=F)
 
@@ -66,37 +66,37 @@ getUSCRNData = function (timeScale, stationID, timeBgn, timeEnd){
   # data returned thru the FTP will merge into this DF
   master.df=data.frame(matrix(nrow = length(ref.seq), ncol = length(header), data = NA))
   colnames(master.df)=header
-  master.df$WBANNO=substr(stationID, (nchar(stationID) - 4), nchar(stationID))
+  master.df$WBANNO=substr(sid, (nchar(sid) - 4), nchar(sid))
 
   # add date time info, including unique date time rownames
-  if(timeScale %in% c("hourly", "subhourly")){
+  if(temp_agg %in% c("hourly", "subhourly")){
     master.df$UTC_DATE=gsub(pattern = "-", replacement = "", x = substr(x=ref.seq, start=1, stop=10))
     master.df$UTC_TIME=gsub(pattern = ":", replacement = "", x = substr(x=ref.seq, start=12, stop=16))
     rownames(master.df)=paste0(master.df$UTC_DATE, "T", master.df$UTC_TIME)
-  }else if(timeScale=="daily"){
+  }else if(temp_agg=="daily"){
     master.df$LST_DATE=gsub(pattern = "-", replacement = "", x = substr(x=ref.seq, start=1, stop=10))
     rownames(master.df)=master.df$LST_DATE
-  }else if(timeScale=="monthly"){
+  }else if(temp_agg=="monthly"){
     master.df$LST_YRMO=gsub(pattern = "-", replacement = "", x = substr(x=ref.seq, start=1, stop=7))
     rownames(master.df)=master.df$LST_YRMO
   }
 
   #### Generate the base FTP link
-  baseLink=.make.base.link(timeScale)
+  baseLink=.make.base.link(temp_agg)
 
   ##### Extract the station name given the ID
-  station.name=.get.uscrn.name(substr(stationID, (nchar(stationID) - 4), nchar(stationID)))
+  station.name=.get.uscrn.name(substr(sid, (nchar(sid) - 4), nchar(sid)))
 
-  # do the downloading. Note that each timeScale is different in what it needs
-  if(timeScale %in% c("subhourly", "hourly", "daily")){
-    raw.data=lapply(years, function(x) .get.data(baseLink = baseLink, station.name=station.name, year = x, timeScale = timeScale, header=header))
+  # do the downloading. Note that each temp_agg is different in what it needs
+  if(temp_agg %in% c("subhourly", "hourly", "daily")){
+    raw.data=lapply(years, function(x) .get.data(baseLink = baseLink, station.name=station.name, year = x, temp_agg = temp_agg, header=header))
     is.df.data=unlist(lapply(raw.data, class))=="data.frame"
     if(any(is.df.data)){
       raw.data=raw.data[is.df.data]
       ok.data=unlist(lapply(raw.data, ncol)==max(unlist(lapply(raw.data, ncol))))
 
       data.df=data.frame(do.call(rbind, raw.data[ok.data]))
-      if(timeScale %in% c("subhourly", "hourly")){
+      if(temp_agg %in% c("subhourly", "hourly")){
         rownames(data.df)=paste0(data.df$UTC_DATE, "T", data.df$UTC_TIME) #Rownames are datetime
       }else{
         rownames(data.df)=data.df$LST_DATE # Row names are dates

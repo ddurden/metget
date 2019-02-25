@@ -4,7 +4,7 @@
 \alias{getMesonetData}
 \title{Pull data from meterologic stations in the mesonet network}
 \usage{
-getMesonetData(token, mesoId, pingTimeBgn, pingTimeEnd, timeBgn, timeEnd)
+getMesonetData(token, mesoId, timeBgn, timeEnd)
 }
 \arguments{
 \item{token}{Personalized Mesonetwork token. This is needed to download data; 

@@ -19,15 +19,15 @@
 ##############################################################################################
 
 getACISData <- function(sid, start_date, end_date, vars="mint,maxt,avgt,pcpn,snow,snwd,obst"){
-  library(jsonlite)
-  library(httr)
-  library(plyr)
+  # library(jsonlite)
+  # library(httr)
+  # library(plyr)
 
   #params <- list(sid = sid, elems = vars, sdate = start_date, edate = end_date, output = "json")
   params <- list(sid = sid, elems = vars, sdate = start_date, edate = end_date, output = "json")
   #req <- httr::POST(url = "http://data.rcc-acis.org/MultiStnData", body = params, encode='json')
   req <- suppressMessages(httr::POST(url = "http://data.rcc-acis.org/StnData", body = params, encode='json'))
-  dat <- suppressMessages(jsonlite::fromJSON(content(req, "text"))) ## much better than parsing a csv
+  dat <- suppressMessages(jsonlite::fromJSON(httr::content(req, "text"))) ## much better than parsing a csv
   out <- as.data.frame(dat$data)
   proceed <- ncol(out)
   ## if for some reason there are no data -- keep going

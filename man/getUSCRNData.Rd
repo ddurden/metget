@@ -4,17 +4,17 @@
 \alias{getUSCRNData}
 \title{Pull data from meterologic stations in the USCRN network}
 \usage{
-getUSCRNData(timeScale, stationID, timeBgn, timeEnd)
+getUSCRNData(temp_agg, sid, start_date, end_date)
 }
 \arguments{
-\item{timeScale}{The time scale of measurements to return.
+\item{temp_agg}{The time scale of measurements to return.
 Enter 'monthly', 'daily', 'hourly', or 'subhourly'.}
 
-\item{stationID}{The WBAN ID of a valid USCRN site.}
+\item{sid}{The WBAN ID of a valid USCRN site.}
 
-\item{TimeBgn}{A YYYY-MM-DD hh:mm:ss formated start time, in UTC.}
+\item{start_date}{YYYY-MM-DD hh:mm:ss formated start time, in UTC.}
 
-\item{TimeEnd}{A YYYY-MM-DD hh:mm:ss formated end time, in UTC.}
+\item{end_date}{A YYYY-MM-DD hh:mm:ss formated end time, in UTC.}
 }
 \value{
 Data frame of USCRN data.
@@ -26,12 +26,12 @@ and a data frame will be returned to the global environment.
 }
 \examples{
 \dontrun{
-timeScale <- "subhourly"
-stationID <- "USW00003047"
-timeBgn <- as.POSIXct("2014-04-01 00:00:01", format="\%Y-\%m-\%d \%H:\%M:\%S", tz="UTC")
-timeEnd <- as.POSIXct("2015-02-01 00:00:00", format = "\%Y-\%m-\%d \%H:\%M:\%S", tz="UTC")
+temp_agg <- "subhourly"
+sid <- "USW00003047"
+start_date <- as.POSIXct("2014-04-01 00:00:01", format="\%Y-\%m-\%d \%H:\%M:\%S", tz="UTC")
+end_date <- as.POSIXct("2015-02-01 00:00:00", format = "\%Y-\%m-\%d \%H:\%M:\%S", tz="UTC")
 
-grabUSCRN(timeScale = timeScale, TimeBgn = TimeBgn, TimeEnd = TimeEnd, stationID = stationID)
+grabUSCRN(temp_agg = temp_agg, TimeBgn = TimeBgn, TimeEnd = TimeEnd, sid = sid)
 }
 }
 \seealso{
