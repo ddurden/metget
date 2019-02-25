@@ -48,7 +48,7 @@
 
 getData<-function(site_meta, start_date, end_date, temp_agg, token=NA){
 options(stringsAsFactors = FALSE)
-  resTracking=NULL
+  resTrackFilter=data.frame()
   #set out to no data right off the bat:
   out<-"NO DATA"
   #check to make sure temp_agg is appropriate
@@ -67,8 +67,7 @@ options(stringsAsFactors = FALSE)
   #filter the resTracking to rows where the platform and temp_agg have a match (map be multiple)
   if(any(stationMeta$platform=="Mesonet")){
     resTrackFilter<-resTracking[which(resTracking$platform==site_meta$platform & resTracking$value=="nominal"),]
-  }
-  else{
+  }else{
     resTrackFilter<-resTracking[which(resTracking$platform==site_meta$platform & resTracking$value==temp_agg),]
   }
 
@@ -77,8 +76,6 @@ options(stringsAsFactors = FALSE)
   if(nrow(resTrackFilter)>0){
     mergedMeta<-merge(stationMeta,resTrackFilter,by=intersect(names(stationMeta),names(resTrackFilter)))
 
-    #update on 2019-02-04.  Just want to use mesonet repository because they'll have data we nned. ACIS only has few variables
-    mergedMeta<-mergedMeta[grep("Mesonet",mergedMeta$Rpackage),]
     #fget unique R packages in case it's repeating:
     useFuncR<-unique(mergedMeta$Rpackage)
     #logic to pull data
@@ -97,14 +94,11 @@ options(stringsAsFactors = FALSE)
       # }
       #grab the first row of the mergedData (just want to run data pull function once per station, not per ID)
       if(useTheseMeta$Rpackage=="ACIS"){
-        #browser()
         sid<-useTheseMeta$id
         out<-getACISData(sid = sid, start_date = start_date, end_date = end_date)
-        #browser()
       }
       else if(useTheseMeta$Rpackage=="RNRCS"){
         if(useTheseMeta$idType=="SCAN"){
-          #browser()
           idType<-site_meta$identifiers$idType[!grepl(x=site_meta$identifiers$idType, pattern = "Mesonet")]
           sid<-site_meta$identifiers[site_meta$identifiers$idType==idType, "id"]
           out<-RNRCS::grabNRCS.data(site_id = sid, network = idType, timescale = temp_agg, DayBgn = start_date, DayEnd =  end_date)
@@ -114,19 +108,17 @@ options(stringsAsFactors = FALSE)
         }
       }
       else if(useTheseMeta$Rpackage=="USCRN"){
-        #browser()
-        #useTheseMeta<-mergedMeta[4,]
         sid<-useTheseMeta$id
         out<-getUSCRNData(sid = sid, temp_agg = temp_agg, start_date = start_date, end_date = end_date)
       }
       else if(useTheseMeta$Rpackage=="Mesonet"){
-        out="No data returned- please input a Mesonet API token. See: https://developers.synopticdata.com/mesonet/ "
+        out="Error- please input a Mesonet API token. See: https://developers.synopticdata.com/mesonet/ "
         if(!is.na(token)){
           #assign mesonet ID:
           mesoId=useTheseMeta$id
           #collapse the time stamps into strings without separators; need this for mesonet API
-          timeBgn<-mesoTime(start_date)
-          timeEnd<-mesoTime(end_date)
+          timeBgn<-metget:::mesoTime(start_date)
+          timeEnd<-metget:::mesoTime(end_date)
           # print mesonetID to end-user:
           # print(mesoId)
           out<-getMesonetData(token=token,mesoId=mesoId,timeBgn=timeBgn,timeEnd=timeEnd)

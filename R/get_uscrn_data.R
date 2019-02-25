@@ -38,7 +38,7 @@
 
 getUSCRNData = function (temp_agg, sid, start_date, end_date){
   ### FN START OPTIONS
-  print(sid)
+  #print(sid)
   functionStart = Sys.time()
   options(stringsAsFactors = FALSE)
   library(data.table)
@@ -51,7 +51,7 @@ getUSCRNData = function (temp_agg, sid, start_date, end_date){
   start_date = as.POSIXct(start_date,  tz="UTC")
   end_date = as.POSIXct(end_date,  tz="UTC")
   years=seq(substr(start_date, 0, 4), substr(end_date, 0, 4))
-  ref.seq=.make.time.seq(start_date, end_date, temp_agg)
+  ref.seq=metget:::.make.time.seq(start_date, end_date, temp_agg)
 
   #### Get table header info
   if (temp_agg == "hourly") {
@@ -82,10 +82,10 @@ getUSCRNData = function (temp_agg, sid, start_date, end_date){
   }
 
   #### Generate the base FTP link
-  baseLink=.make.base.link(temp_agg)
+  baseLink=metget:::.make.base.link(temp_agg)
 
   ##### Extract the station name given the ID
-  station.name=.get.uscrn.name(substr(sid, (nchar(sid) - 4), nchar(sid)))
+  station.name=metget:::.get.uscrn.name(substr(sid, (nchar(sid) - 4), nchar(sid)))
 
   # do the downloading. Note that each temp_agg is different in what it needs
   if(temp_agg %in% c("subhourly", "hourly", "daily")){

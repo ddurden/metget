@@ -96,11 +96,11 @@ getMesonetData<-function(token,mesoId,timeBgn,timeEnd){
     names(data.df)<-names(data.list$STATION$OBSERVATIONS)
     #convert date_time from factor to POSIX:
     data.df$date_time<-as.POSIXct(data.df$date_time,format='%Y-%m-%dT%H:%M:%SZ',tz = "UTC")
-    print(paste0("Data downloaded for ", mesoId))
+    message(paste0("Data downloaded for ", mesoId))
   }
   else{
     data.df<-"NO DATA"
-    print(paste0("NO DATA for ", mesoId))
+    message(paste0("NO DATA for ", mesoId))
   }
   #return the data:
   return(data.df)

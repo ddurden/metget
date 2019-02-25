@@ -94,5 +94,8 @@
 #function to convert time to mesonet format:
 mesoTime<-function(x){
   x<-gsub("-|:| ","",x)
+  if(nchar(x)<14){
+    x=paste0(x, paste0(rep(0, times=(14-nchar(x))), collapse = ""))
+    }
   return(x)
 }
