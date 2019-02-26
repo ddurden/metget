@@ -35,7 +35,7 @@ getACISData <- function(sid, start_date, end_date, vars="mint,maxt,avgt,pcpn,sno
     return("NO DATA")
   } else {
     names(out) <- c("date", strsplit(vars, ",")[[1]])
-    print(sid)
+    #print(sid)
     out$sid <- sid
     out$state #dat$meta$statedat$meta$state
     return(out)

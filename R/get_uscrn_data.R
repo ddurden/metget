@@ -41,7 +41,7 @@ getUSCRNData = function (temp_agg, sid, start_date, end_date){
   #print(sid)
   functionStart = Sys.time()
   options(stringsAsFactors = FALSE)
-  library(data.table)
+  #library(data.table)
   library(stringr)
 
   ### Handle timescales
@@ -89,7 +89,7 @@ getUSCRNData = function (temp_agg, sid, start_date, end_date){
 
   # do the downloading. Note that each temp_agg is different in what it needs
   if(temp_agg %in% c("subhourly", "hourly", "daily")){
-    raw.data=lapply(years, function(x) .get.data(baseLink = baseLink, station.name=station.name, year = x, temp_agg = temp_agg, header=header))
+    raw.data=lapply(years, function(x) metget:::.get.data(baseLink = baseLink, station.name=station.name, year = x, temp_agg = temp_agg, header=header))
     is.df.data=unlist(lapply(raw.data, class))=="data.frame"
     if(any(is.df.data)){
       raw.data=raw.data[is.df.data]
@@ -103,7 +103,7 @@ getUSCRNData = function (temp_agg, sid, start_date, end_date){
       }
     }else{data.df=NULL} #if none of the data returned are vaild, write noting out
   }else{
-    data.df=.get.monthly.data(station.name = station.name, header=header)
+    data.df=metget:::.get.monthly.data(station.name = station.name, header=header)
     rownames(data.df)=data.df$LST_YRMO #Rownames are year mon
   }
 

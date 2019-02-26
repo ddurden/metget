@@ -55,8 +55,6 @@
 # Get data (for non-monthly data) ####
 .get.data=function(baseLink, station.name, year, temp_agg, header){
   raw.data=NA
-  #browser()
-  year<-2003
   if(any(grepl(pattern = paste0(">", year), x = readLines(baseLink)))){
     tails="01/"
     if(temp_agg=="hourly"){tails="02/"}
