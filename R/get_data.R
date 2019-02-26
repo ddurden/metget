@@ -48,6 +48,7 @@
 
 getData=function(site_meta, start_date, end_date, temp_agg, token=NA){
 options(stringsAsFactors = FALSE)
+  resTracking=NULL
   resTrackFilter=data.frame()
   #set out to no data right off the bat:
   out="NO DATA"
@@ -117,8 +118,8 @@ options(stringsAsFactors = FALSE)
           #assign mesonet ID:
           mesoId=useTheseMeta$id
           #collapse the time stamps into strings without separators; need this for mesonet API
-          timeBgn=metget:::mesoTime(start_date)
-          timeEnd=metget:::mesoTime(end_date)
+          timeBgn=mesoTime(start_date)
+          timeEnd=mesoTime(end_date)
           # print mesonetID to end-user:
           # print(mesoId)
           out=getMesonetData(token=token,mesoId=mesoId,timeBgn=timeBgn,timeEnd=timeEnd)

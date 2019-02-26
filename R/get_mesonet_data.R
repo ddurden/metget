@@ -44,8 +44,8 @@
 ##############################################################################################
 
 getMesonetData<-function(token,mesoId,timeBgn,timeEnd){
-  library(httr)
-  library(jsonlite)
+  # library(httr)
+  # library(jsonlite)
   #grab data via "ping" dates to check what types of data are available:
   # callTextPing<-paste0("https://api.synopticdata.com/v2/stations/timeseries?&token=",token,"&start=",pingTimeBgn,"&end=",pingTimeEnd,"&obtimezone=utc&output=json&stid=",mesoId)
   # data.call<-httr::GET(callTextPing)
