@@ -48,7 +48,7 @@
 
 getData=function(site_meta, start_date, end_date, temp_agg, token=NA){
 options(stringsAsFactors = FALSE)
-  resTracking=NULL
+resTracking=metget::resTracking
   resTrackFilter=data.frame()
   #set out to no data right off the bat:
   out="NO DATA"
