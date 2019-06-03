@@ -47,7 +47,8 @@ getMesonetData<-function(token,mesoId,timeBgn,timeEnd){
   # library(httr)
   # library(jsonlite)
   #grab data via "ping" dates to check what types of data are available:
-  # callTextPing<-paste0("https://api.synopticdata.com/v2/stations/timeseries?&token=",token,"&start=",pingTimeBgn,"&end=",pingTimeEnd,"&obtimezone=utc&output=json&stid=",mesoId)
+  # callTextPing<-paste0("https://api.synopticdata.com/v2/stations/timeseries?&token=",token,
+  # "&start=",pingTimeBgn,"&end=",pingTimeEnd,"&obtimezone=utc&output=json&stid=",mesoId)
   # data.call<-httr::GET(callTextPing)
   # #daily:
   # data.raw<-rawToChar(data.call$content)
@@ -62,9 +63,13 @@ getMesonetData<-function(token,mesoId,timeBgn,timeEnd){
   #replace the last two digits of timeEnd with 0s:
   timeBgn<-substr(timeBgn,1,nchar(timeBgn)-2)
   timeEnd<-substr(timeEnd,1,nchar(timeEnd)-2)
+  
+  print(timeBgn)
   #timeEnd<-paste0(timeEnd,"00")
   
-  callText<-paste0("https://api.synopticdata.com/v2/stations/timeseries?&token=",token,"&start=",timeBgn,"&end=",timeEnd,"&obtimezone=utc&output=json&stid=",mesoId)
+  callText<-paste0("https://api.synopticdata.com/v2/stations/timeseries?&token=",
+                   token,"&start=",timeBgn,"&end=",timeEnd,"&obtimezone=utc&output=json&stid=",mesoId)
+  print(callText)
   #get station data for a single station,; WBB:
   #hourly
   data.call<-httr::GET(callText)
